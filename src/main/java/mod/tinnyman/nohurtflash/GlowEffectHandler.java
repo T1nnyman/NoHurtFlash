@@ -5,6 +5,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.scores.PlayerTeam;
 import net.minecraft.world.scores.Scoreboard;
 import net.minecraftforge.api.distmarker.Dist;
@@ -37,7 +38,7 @@ public class GlowEffectHandler {
         }
 
         for (var entity : mc.level.entitiesForRendering()) {
-            if (entity instanceof LivingEntity living) {
+            if (entity instanceof LivingEntity living && !(living instanceof Player)) {
                 boolean shouldGlow = living.hurtTime > 0;
                 EntityDataAccessor<Byte> flagsId = EntityAccessor.getSharedFlagsId();
                 byte currentFlags = living.getEntityData().get(flagsId);
