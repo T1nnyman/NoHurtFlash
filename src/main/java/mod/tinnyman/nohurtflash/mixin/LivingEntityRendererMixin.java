@@ -7,8 +7,12 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 
 @Mixin(LivingEntityRenderer.class)
 public class LivingEntityRendererMixin {
-    @ModifyArg(method = "getOverlayCoords", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/texture/OverlayTexture;v(Z)I"))
-    private static boolean notHurtOverlay(boolean original) {
+    @ModifyArg(
+            method = "getOverlayCoords",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/renderer/texture/OverlayTexture;v(Z)I"))
+    private static boolean noHurtOverlay(boolean original) {
         return false;
     }
 }

@@ -22,3 +22,10 @@ mandatory = true
 versionRange = "${minecraft_version_range}"
 ordering = "NONE"
 side = "BOTH"
+
+[[dependencies."${mod_id}"]]
+modId = "geckolib"
+mandatory = false
+versionRange = "[4.7.2,)"
+ordering = "NONE"
+side = "CLIENT"

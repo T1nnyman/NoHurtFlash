@@ -1,3 +1,7 @@
+run/
+run-data/
+
+
 # User-specific stuff
 .idea/
 
