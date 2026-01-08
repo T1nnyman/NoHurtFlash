@@ -14,7 +14,7 @@ public class NoHurtFlash {
 
     public NoHurtFlash(FMLJavaModLoadingContext context) {
         // Client Config
-        context.registerConfig(ModConfig.Type.CLIENT, net.tinnyman.nohurtflash.ModConfig.SPEC);
+        context.registerConfig(ModConfig.Type.CLIENT, net.tinnyman.nohurtflash.ModConfig.SPEC, MODID + "-client.toml");
 
         if (!ModList.get().isLoaded("geckolib")) {
             NoHurtFlash.LOGGER.warn(

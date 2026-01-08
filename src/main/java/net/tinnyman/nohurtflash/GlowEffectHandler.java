@@ -30,12 +30,12 @@ public class GlowEffectHandler {
         if (level == null) return;
         if (mc.isPaused()) return;
 
+        GlowColorManager.clientTick();
         Scoreboard scoreboard = level.getScoreboard();
         PlayerTeam team = scoreboard.getPlayerTeam(TEAM_NAME);
         if (team == null) {
             team = scoreboard.addPlayerTeam(TEAM_NAME);
-            ChatFormatting color = ModConfig.getGlowColor();
-            team.setColor(color != null ? color : ChatFormatting.RED);
+            team.setColor(ChatFormatting.GREEN);
             team.setAllowFriendlyFire(false);
             team.setSeeFriendlyInvisibles(true);
         }
@@ -68,15 +68,5 @@ public class GlowEffectHandler {
                 }
             }
         }
-    }
-
-    public static void setGlowing(LivingEntity entity, boolean glowing) {
-        EntityDataAccessor<Byte> FLAGS = EntityAccessor.getSharedFlagsId();
-        byte flags = entity.getEntityData().get(FLAGS);
-
-        if (glowing) flags |= GLOW_FLAG_BIT;
-        else flags &= ~GLOW_FLAG_BIT;
-
-        entity.getEntityData().set(FLAGS, flags);
     }
 }

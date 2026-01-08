@@ -9,7 +9,8 @@
   ],
   "client": [
     "GeoEntityRendererMixin",
-    "LivingEntityRendererMixin"
+    "LivingEntityRendererMixin",
+    "LevelRendererTeamColorRedirectMixin"
   ],
   "injectors": {
     "defaultRequire": 0
