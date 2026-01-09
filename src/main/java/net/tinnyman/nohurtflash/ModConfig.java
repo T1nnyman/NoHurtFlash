@@ -6,18 +6,25 @@ import net.minecraftforge.common.ForgeConfigSpec.*;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.config.ModConfigEvent;
+import net.tinnyman.nohurtflash.Util.GlowColorUtil;
 
-import java.util.Locale;
-
+/**
+ * Client-side configuration for NoHurtFlash
+ *
+ * This file defines config keys + default values and keeps a cached parsed glow color for fast use during rendering.
+ */
 @Mod.EventBusSubscriber(modid = NoHurtFlash.MODID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public class ModConfig {
     public static final Builder BUILDER = new Builder();
-    public static final BooleanValue ENABLE_GLOW;
-    public static final ConfigValue<String> GLOW_COLOR_HEX;
-    public static final BooleanValue RGB_MODE;
-    public static final DoubleValue RGB_CYCLES_PER_SECOND;
     public static final ForgeConfigSpec SPEC;
 
+    /* Config Values */
+    public static final BooleanValue GLOW_ENABLED;
+    public static final ConfigValue<String> GLOW_COLOR_HEX_STRING;
+    public static final BooleanValue RAINBOW_MODE_ENABLED;
+    public static final DoubleValue RAINBOW_CYCLES_PER_SECOND;
+
+    /* Cached parsed state */
     private static volatile int cachedR = 255;
     private static volatile int cachedG = 0;
     private static volatile int cachedB = 0;
@@ -25,19 +32,19 @@ public class ModConfig {
     static {
         BUILDER.push("General Settings");
 
-        ENABLE_GLOW = BUILDER
+        GLOW_ENABLED = BUILDER
                 .comment("Enable or disable the hurt-time glow effect")
                 .define("enableGlow", true);
 
-        GLOW_COLOR_HEX = BUILDER
+        GLOW_COLOR_HEX_STRING = BUILDER
                 .comment("Glow color as hex. Examples: \\\"#FF0000\\\" or \\\"00FFAA\\\"")
                 .define("glowColorHex", "#FF0000");
 
-        RGB_MODE = BUILDER
+        RAINBOW_MODE_ENABLED = BUILDER
                 .comment("If true, glow rapidly cycles through rainbow colors")
                 .define("rgbMode", false);
 
-        RGB_CYCLES_PER_SECOND = BUILDER
+        RAINBOW_CYCLES_PER_SECOND = BUILDER
                 .comment("Rainbow speed (full hue cycles per second). Example: 2.0 = 2 rainbows per second")
                         .defineInRange("rgbCyclesPerSecond", 3.0, 0.1, 50.0);
 
@@ -45,55 +52,52 @@ public class ModConfig {
         SPEC = BUILDER.build();
     }
 
-    private static void refreshCachedColor() {
-        int rgb = parseHexToRgb24(GLOW_COLOR_HEX.get());
-        cachedR = (rgb >> 16) & 0xFF;
-        cachedG = (rgb >> 8) & 0xFF;
-        cachedB = rgb & 0xFF;
+    /**
+     * Re-parses the configured hex color string and updates cached RGB channels.
+     * Called when the client config loads or reloads.
+     */
+    private static void rebuildCachedGlowColor() {
+        int rgb24 = GlowColorUtil.parseRgb24FromHex(GLOW_COLOR_HEX_STRING.get(), 0xFF000);
+        cachedR = (rgb24 >> 16) & 0xFF;
+        cachedG = (rgb24 >> 8) & 0xFF;
+        cachedB = rgb24 & 0xFF;
 
         NoHurtFlash.LOGGER.info("[NoHurtFlash] Config loaded: enableGlow={}, rgbMode={}, rgbCyclesPerSecond={}, glowColorHex={} -> ({},{},{})",
-                ENABLE_GLOW.get(),
-                RGB_MODE.get(),
-                RGB_CYCLES_PER_SECOND.get(),
-                GLOW_COLOR_HEX.get(),
+                GLOW_ENABLED.get(),
+                RAINBOW_MODE_ENABLED.get(),
+                RAINBOW_CYCLES_PER_SECOND.get(),
+                GLOW_COLOR_HEX_STRING.get(),
                 cachedR, cachedG, cachedB
         );
     }
 
-    private static boolean isOurConfig(net.minecraftforge.fml.config.ModConfig cfg) {
+    /**
+     * Ensures we only respond to THIS mod's CLIENT config events.
+     */
+    private static boolean isNoHurtFlashClientConfig(net.minecraftforge.fml.config.ModConfig cfg) {
         return cfg != null && NoHurtFlash.MODID.equals(cfg.getModId()) && cfg.getType() == net.minecraftforge.fml.config.ModConfig.Type.CLIENT;
     }
 
     @SubscribeEvent
     public static void onConfigLoading(final ModConfigEvent.Loading event) {
-        if (!isOurConfig(event.getConfig())) return;
-        refreshCachedColor();
+        if (!isNoHurtFlashClientConfig(event.getConfig())) return;
+        rebuildCachedGlowColor();
     }
 
     @SubscribeEvent
     public static void onConfigReloading(final ModConfigEvent.Reloading event) {
-        if (!isOurConfig(event.getConfig())) return;
-        refreshCachedColor();
+        if (!isNoHurtFlashClientConfig(event.getConfig())) return;
+        rebuildCachedGlowColor();
     }
 
-    public static int parseHexToRgb24(String raw) {
-        if (raw == null) return 0xFF0000;
+    /* ---------------- Public accessors for cached color ---------------- */
 
-        String s = raw.trim().toLowerCase(Locale.ROOT);
-        if (s.startsWith("#")) s = s.substring(1);
+    /** Cached red channel (0-255) for the configured glow color. */
+    public static int glowRed()   { return cachedR; }
 
-        // Allow 3-digit shorthand RGB ("f0a")
-        if (s.length() == 3) {
-            char r = s.charAt(0), g = s.charAt(1), b = s.charAt(2);
-            s = "" + r + r + g + g + b + b;
-        }
+    /** Cached green channel (0-255) for the configured glow color. */
+    public static int glowGreen() { return cachedG; }
 
-        if (s.length() != 6) return 0xFF0000;
-
-        try {
-            return Integer.parseInt(s, 16) & 0xFFFFFF;
-        } catch (NumberFormatException ignored) {
-            return 0xFF0000;
-        }
-    }
+    /** Cached blue channel (0-255) for the configured glow color. */
+    public static int glowBlue()  { return cachedB; }
 }

@@ -16,6 +16,7 @@ public class NoHurtFlash {
         // Client Config
         context.registerConfig(ModConfig.Type.CLIENT, net.tinnyman.nohurtflash.ModConfig.SPEC, MODID + "-client.toml");
 
+        // Geckolib dependency check
         if (!ModList.get().isLoaded("geckolib")) {
             NoHurtFlash.LOGGER.warn(
                     "[NoHurtFlash] GeckoLib not detected – GeckoLib entity support will be disabled."
