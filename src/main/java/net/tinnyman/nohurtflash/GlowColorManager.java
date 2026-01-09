@@ -22,6 +22,29 @@ public final class GlowColorManager {
      */
     private static volatile int currentGlowRgb24 = 0xFF0000;
 
+    private static volatile boolean overrideRgbModeActive = false;
+    private static volatile boolean overrideRgbModeValue = false;
+    private static volatile boolean overrideColorActive = false;
+    private static volatile int overrideColorRgb24 = 0xFF0000;
+
+    public static void setOverrideRgbMode(Boolean valueOrNull) {
+        if (valueOrNull == null) {
+            overrideRgbModeActive = false;
+        } else {
+            overrideRgbModeActive = true;
+            overrideRgbModeValue = valueOrNull;
+        }
+    }
+
+    public static void setOverrideColorRgb24(Integer rgb24OrNull) {
+        if (rgb24OrNull == null) {
+            overrideColorActive = false;
+        } else {
+            overrideColorActive = true;
+            overrideColorRgb24 = rgb24OrNull;
+        }
+    }
+
     /**
      * Called once per client tick to update the current glow color.
      *
@@ -31,28 +54,29 @@ public final class GlowColorManager {
     public static void tickClient() {
         if (!ModConfig.GLOW_ENABLED.get()) return;
 
-        // Static color mode
-        if (!ModConfig.RAINBOW_MODE_ENABLED.get()) {
-            currentGlowRgb24 = GlowColorUtil.parseRgb24FromHex(ModConfig.GLOW_COLOR_HEX_STRING.get(), 0xFF0000);
+        boolean rgbMode = overrideRgbModeActive ? overrideRgbModeValue : ModConfig.RAINBOW_MODE_ENABLED.get();
+
+        if (!rgbMode) {
+            if (overrideColorActive) {
+                currentGlowRgb24 = overrideColorRgb24;
+            } else {
+                currentGlowRgb24 = GlowColorUtil.parseRgb24FromHex(ModConfig.GLOW_COLOR_HEX_STRING.get(), 0xFF0000);
+            }
             return;
         }
 
-        // Rainbow mode
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null) return;
 
         double cps = ModConfig.RAINBOW_CYCLES_PER_SECOND.get();
-        long gameTime = mc.level.getGameTime();
-        float tSeconds = gameTime / 20f;
+        float tSeconds = mc.level.getGameTime() / 20f;
 
         float hue = (float) (tSeconds * cps);
         currentGlowRgb24 = GlowColorUtil.hsvToRgb24(hue, 1.0f, 1.0f);
     }
 
     /** @return current glow color as packed RGB24 (0xRRGGBB). */
-    public static int getCurrentGlowRgb24() {
-        return currentGlowRgb24;
-    }
+    public static int getCurrentGlowRgb24() { return currentGlowRgb24; }
 
     /** @return red channel (0-255) from the current glow color. */
     public static int getR() { return (currentGlowRgb24 >> 16) & 0xFF; }

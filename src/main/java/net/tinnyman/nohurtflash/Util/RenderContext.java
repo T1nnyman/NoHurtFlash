@@ -1,6 +1,5 @@
-package net.tinnyman.nohurtflash;
+package net.tinnyman.nohurtflash.Util;
 
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 
 /**

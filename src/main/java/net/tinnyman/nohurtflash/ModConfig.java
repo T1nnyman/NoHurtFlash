@@ -1,12 +1,17 @@
 package net.tinnyman.nohurtflash;
 
+import com.electronwill.nightconfig.core.file.CommentedFileConfig;
+import com.electronwill.nightconfig.core.io.WritingMode;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.common.ForgeConfigSpec.*;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.config.ModConfigEvent;
+import net.minecraftforge.fml.loading.FMLPaths;
 import net.tinnyman.nohurtflash.Util.GlowColorUtil;
+
+import java.nio.file.Path;
 
 /**
  * Client-side configuration for NoHurtFlash
@@ -56,7 +61,7 @@ public class ModConfig {
      * Re-parses the configured hex color string and updates cached RGB channels.
      * Called when the client config loads or reloads.
      */
-    private static void rebuildCachedGlowColor() {
+    public static void rebuildCachedGlowColor() {
         int rgb24 = GlowColorUtil.parseRgb24FromHex(GLOW_COLOR_HEX_STRING.get(), 0xFF000);
         cachedR = (rgb24 >> 16) & 0xFF;
         cachedG = (rgb24 >> 8) & 0xFF;
@@ -69,6 +74,57 @@ public class ModConfig {
                 GLOW_COLOR_HEX_STRING.get(),
                 cachedR, cachedG, cachedB
         );
+    }
+
+    /** Set the config value (in-memory) + rebuild cache. */
+    public static void setGlowColorHex(String hex) {
+        GLOW_COLOR_HEX_STRING.set(hex);
+        rebuildCachedGlowColor();
+    }
+
+    /** Enable/disable RGB mode (in-memory). */
+    public static void setRgbMode(boolean enabled) {
+        RAINBOW_MODE_ENABLED.set(enabled);
+    }
+
+    /**
+     * Persist current in-memory config values to disk immediately.
+     * This keeps the TOML in sync with changes made by commands/UI.
+     */
+    public static void saveNow() {
+        Path path = clientConfigPath();
+
+        CommentedFileConfig file = CommentedFileConfig.builder(path)
+                .sync()
+                .autoreload()
+                .writingMode(WritingMode.REPLACE)
+                .build();
+
+        try {
+            file.load();
+            file.set("General Settings.enableGlow", GLOW_ENABLED.get());
+            file.set("General Settings.glowColorHex", GLOW_COLOR_HEX_STRING.get());
+            file.set("General Settings.rgbMode", RAINBOW_MODE_ENABLED.get());
+            file.set("General Settings.rgbCyclesPerSecond", RAINBOW_CYCLES_PER_SECOND.get());
+            file.save();
+        } finally {
+            file.close();
+        }
+    }
+
+    /** Convenience: set all picker-related values + rebuild cache + save to disk. */
+    public static void applyPickerSettings(boolean rgbMode, double rgbCps, String hex) {
+        RAINBOW_MODE_ENABLED.set(rgbMode);
+        RAINBOW_CYCLES_PER_SECOND.set(rgbCps);
+        GLOW_COLOR_HEX_STRING.set(hex);
+
+        rebuildCachedGlowColor(); // keeps your cachedR/G/B up to date
+        saveNow();
+    }
+
+    /** Default Forge config filename for client config. */
+    private static Path clientConfigPath() {
+        return FMLPaths.CONFIGDIR.get().resolve(NoHurtFlash.MODID + "-client.toml");
     }
 
     /**

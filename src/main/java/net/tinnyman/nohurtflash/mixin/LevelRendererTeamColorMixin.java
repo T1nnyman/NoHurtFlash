@@ -12,8 +12,6 @@ import net.tinnyman.nohurtflash.GlowColorManager;
 import net.tinnyman.nohurtflash.Util.VisibilityUtil;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.ModifyArgs;
-import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
 /**
  * Redirects LevelRenderer's call to Entity#getTeamColor() during world rendering.
