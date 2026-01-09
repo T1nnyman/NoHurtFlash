@@ -8,7 +8,7 @@ Tired of the blinding red hurt flash every time a mob takes damage, especially w
 
 💡 Lightweight, client-side only — safe for any server!
 
-VIDEO
+<iframe width="560" height="315" src="https://www.youtube.com/embed/boXJEkBbx08?si=KoBxQm8SVpHYm_IF" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
 🛠 Compatibility
 
