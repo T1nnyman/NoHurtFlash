@@ -8,13 +8,13 @@ Tired of the blinding red hurt flash every time a mob takes damage, especially w
 
 💡 Lightweight, client-side only — safe for any server!
 
-Easily change the glow color with the command /nohurtflash picker
+Easily change the glow color with the command /nohurtflash
 
 https://github.com/user-attachments/assets/fbb0b32a-80c9-41d3-a46d-6dae1af3e9dd
 
 🛠 Compatibility
 
-✅ Forge 1.20.1
+✅ Forge 1.20.1 & NeoForge 1.21.1
 
 ✅ Compatible with GeckoLib 4.8.2+
 
