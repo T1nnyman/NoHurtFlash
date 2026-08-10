@@ -11,8 +11,7 @@ import net.tinnyman.nohurtflash.util.GlowColorUtil;
 import java.util.function.DoubleConsumer;
 import java.util.function.IntConsumer;
 
-/**
- * Client-side GUI for configuring the hurt-glow color.
+/** Client-side GUI for configuring the hurt-glow color.
  *
  * This screen provides:
  *  - Static RGB color selection with live preview
@@ -22,8 +21,7 @@ import java.util.function.IntConsumer;
  *  - Enable/disable vanilla Minecraft hurt effect
  *
  *  All changes are previewed instantly and can be saved directly to the
- *  client config without requiring a game restart.
- */
+ *  client config without requiring a game restart. */
 public class ConfigScreen extends Screen {
 
     /** Parent screen to return to when closing this menu. */
@@ -45,6 +43,7 @@ public class ConfigScreen extends Screen {
     /* -------- Effect state -------- */
     /** Whether the NoHurtFlash custom glow is enabled. */
     private boolean glowEnabled;
+
     /** Whether Minecraft's original red hurt overlay is enabled.
     This is intentionally independent of glowEnabled so users can choose either effect, both, or neither. */
     private boolean oldHurtEffectEnabled;
@@ -57,14 +56,11 @@ public class ConfigScreen extends Screen {
 
     private DoubleSlider cpsSlider;
 
-    /**
-     * Creates the glow color config screen.
-     *
+    /** Creates the glow color picker screen.
      * Initial values are pulled from the current client config so the
-     * UI reflects the active settings when opened.
-     */
+     * UI reflects the active settings when opened. */
     public ConfigScreen(Screen parent) {
-        super(Component.literal("NoHurtFlash Glow Settings"));
+        super(Component.literal("NoHurtFlash Settings"));
         this.parent = parent;
 
         // Initialize effect enabled state from config
@@ -215,13 +211,10 @@ public class ConfigScreen extends Screen {
     /** @return Label for the vanilla hurt effect toggle. */
     private Component oldHurtEffectLabel() { return Component.literal( "Old Hurt Effect: " + (oldHurtEffectEnabled ? "ON" : "OFF") ); }
 
-    /**
-     * Enables or disables UI controls based on the current RGB mode state.
-     *
+    /** Enables or disables UI controls based on the current RGB mode state.
      * When RGB mode is enabled:
      *  - Static RGB sliders are disabled
-     *  - RGB speed slider is enabled
-     */
+     *  - RGB speed slider is enabled */
     private void updateEnabledStates() {
         // If RGB mode is ON, static sliders still can be adjusted for later,
         // but you can choose to disable them if you prefer.
@@ -234,12 +227,8 @@ public class ConfigScreen extends Screen {
         cpsSlider.active = rgbMode;
     }
 
-    /**
-     * Applies a live preview of the current UI state.
-     *
-     * This updates GlowColorManager overrides immediately without
-     * saving anything to disk.
-     */
+    /** Applies a live preview of the current UI state.
+     * This updates GlowColorManager overrides immediately without saving anything to disk. */
     private void applyLivePreview() {
         GlowColorManager.setOverrideRgbMode(rgbMode);
 
@@ -291,9 +280,7 @@ public class ConfigScreen extends Screen {
     /* --------------------------------------------------------------------- */
 
 
-    /**
-     * Integer slider for 0–255 channel values.
-     */
+    /** Integer slider for 0–255 channel values. */
     private static final class IntSlider extends AbstractSliderButton {
         private final String label;
         private final IntConsumer onChange;
@@ -316,11 +303,8 @@ public class ConfigScreen extends Screen {
         }
     }
 
-    /**
-     * Double slider with a configurable range.
-     *
-     * Used for RGB cycle speed (cycles per second).
-     */
+    /** Double slider with a configurable range.
+     * Used for RGB cycle speed (cycles per second). */
     private static final class DoubleSlider extends AbstractSliderButton {
         private final String label;
         private final double min;

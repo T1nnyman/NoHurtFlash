@@ -12,23 +12,18 @@ import net.tinnyman.nohurtflash.util.VisibilityUtil;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
-/**
- * Redirects LevelRenderer's call to Entity#getTeamColor() during world rendering.
- *
+/** Redirects LevelRenderer's call to Entity#getTeamColor() during world rendering.
  * Why this exists:
  *  - Vanilla uses "team color" to tint the glowing outline.
  *  - We temporarily force entities to "glow" while hurt (via shared flags).
  *  - This mixin supplies a custom outline color for that forced glow so the
  *    effect isn't always the default team/white color.
- *
  * Safety rules:
  *  - Do not affect players (keep vanilla behavior).
  *  - Only override color when we are actively applying the hurt-glow effect.
  *  - Only override color when the entity is actually visible (no x-ray).
- *
  * Important:
- *  - This changes what color the outline renders with, not whether the entity glows.
- */
+ *  - This changes what color the outline renders with, not whether the entity glows. */
 @Mixin(LevelRenderer.class)
 public class LevelRendererTeamColorMixin {
     @WrapOperation(method = "renderLevel",

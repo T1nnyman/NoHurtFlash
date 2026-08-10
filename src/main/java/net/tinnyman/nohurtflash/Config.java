@@ -6,14 +6,9 @@ import net.neoforged.fml.event.config.ModConfigEvent;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.tinnyman.nohurtflash.util.GlowColorUtil;
 
-/**
-
- * Client-side configuration for NoHurtFlash.
- *
+/** Client-side configuration for NoHurtFlash.
  * This class defines the configuration values and keeps a cached
- * RGB representation of the configured glow color for fast access
- * during rendering.
- */
+ * RGB representation of the configured glow color for fast access during rendering. */
 public class Config {
     public static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
     public static final ModConfigSpec SPEC;
@@ -54,26 +49,17 @@ public class Config {
                 .defineInRange("rgbCyclesPerSecond", 0.5, 0.1, 2.0);
 
         BUILDER.pop();
-
         SPEC = BUILDER.build();
     }
 
-    /**
-
-     * Re-parses the configured hex color string and updates the cached RGB channels.
-     */
+    /** Re-parses the configured hex color string and updates the cached RGB channels. */
     public static void rebuildCachedGlowColor() {
-        int rgb24 = GlowColorUtil.parseRgb24FromHex(
-                GLOW_COLOR_HEX_STRING.get(),
-                0xFF0000
-        );
-
+        int rgb24 = GlowColorUtil.parseRgb24FromHex(GLOW_COLOR_HEX_STRING.get(), 0xFF0000);
         cachedR = (rgb24 >> 16) & 0xFF;
         cachedG = (rgb24 >> 8) & 0xFF;
         cachedB = rgb24 & 0xFF;
 
-        NoHurtFlash.LOGGER.info(
-                "[NoHurtFlash] Config loaded: enableGlow={}, disableHurtFlash={}, rgbMode={}, " +
+        NoHurtFlash.LOGGER.info("[NoHurtFlash] Config loaded: enableGlow={}, disableHurtFlash={}, rgbMode={}, " +
                         "rgbCyclesPerSecond={}, glowColorHex={} -> ({},{},{})",
                 GLOW_ENABLED.get(),
                 OLD_HURT_EFFECT_ENABLED.get(),
@@ -86,29 +72,7 @@ public class Config {
         );
     }
 
-    /**
-
-     * Sets the configured glow color in memory and rebuilds the cached RGB values.
-     */
-    public static void setGlowColorHex(String hex) {
-        GLOW_COLOR_HEX_STRING.set(hex);
-        rebuildCachedGlowColor();
-        SPEC.save();
-    }
-
-    /**
-
-     * Enables or disables RGB mode in memory.
-     */
-    public static void setRgbMode(boolean enabled) {
-        RAINBOW_MODE_ENABLED.set(enabled);
-        SPEC.save();
-    }
-
-    /**
-
-     * Applies all picker-related settings.
-     */
+    /** Applies all config-related settings. */
     public static void applyConfigSettings(
             boolean glowEnabled,
             boolean oldHurtEffectEnabled,
@@ -128,65 +92,33 @@ public class Config {
         SPEC.save();
     }
 
-    /**
-
-     * Responds when this mod's client configuration is loaded.
-     */
+    /** Responds when this mod's client configuration is loaded. */
     @SubscribeEvent
     public static void onConfigLoading(final ModConfigEvent.Loading event) {
-        if (!isNoHurtFlashClientConfig(event.getConfig())) {
-            return;
-        }
-
+        if (!isNoHurtFlashClientConfig(event.getConfig())) return;
         rebuildCachedGlowColor();
     }
 
-    /**
-
-     * Responds when this mod's client configuration is reloaded.
-     */
+    /** Responds when this mod's client configuration is reloaded. */
     @SubscribeEvent
     public static void onConfigReloading(final ModConfigEvent.Reloading event) {
-        if (!isNoHurtFlashClientConfig(event.getConfig())) {
-            return;
-        }
-
+        if (!isNoHurtFlashClientConfig(event.getConfig())) return;
         rebuildCachedGlowColor();
     }
 
-    /**
-
-     * Makes sure the event belongs to NoHurtFlash's client configuration.
-     */
+    /** Makes sure the event belongs to NoHurtFlash's client configuration. */
     private static boolean isNoHurtFlashClientConfig(ModConfig config) {
-        return config != null
-                && NoHurtFlash.MODID.equals(config.getModId())
-                && config.getType() == ModConfig.Type.CLIENT;
+        return config != null && NoHurtFlash.MODID.equals(config.getModId()) && config.getType() == ModConfig.Type.CLIENT;
     }
 
     /* ---------------- Public accessors for cached color ---------------- */
 
-    /**
+    /** Cached red channel (0-255). */
+    public static int glowRed() { return cachedR; }
 
-     * Cached red channel (0-255).
-     */
-    public static int glowRed() {
-        return cachedR;
-    }
+    /** Cached green channel (0-255). */
+    public static int glowGreen() { return cachedG; }
 
-    /**
-
-     * Cached green channel (0-255).
-     */
-    public static int glowGreen() {
-        return cachedG;
-    }
-
-    /**
-
-     * Cached blue channel (0-255).
-     */
-    public static int glowBlue() {
-        return cachedB;
-    }
+    /** Cached blue channel (0-255). */
+    public static int glowBlue() { return cachedB; }
 }
