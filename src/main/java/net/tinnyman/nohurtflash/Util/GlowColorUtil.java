@@ -1,28 +1,21 @@
 package net.tinnyman.nohurtflash.Util;
 
-/**
- * Color helper methods used by the glow rendering pipeline.
- *
+/** Color helper methods used by the glow rendering pipeline.
  * Conventions used in this class:
  *  - "RGB24" means a packed 24-bit integer in the form 0xRRGGBB (no alpha).
- *  - HSV inputs are normalized floats (0..1) unless stated otherwise.
- */
+ *  - HSV inputs are normalized floats (0..1) unless stated otherwise. */
 public final class GlowColorUtil {
-    /**
-     * Parses a hex color string into a packed RGB24 value (0xRRGGBB).
-     *
+    /** Parses a hex color string into a packed RGB24 value (0xRRGGBB).
      * Accepted formats:
      *  - "#RRGGBB"
      *  - "RRGGBB"
      *  - "#RGB" (shorthand, e.g. "#f0a" -> "#ff00aa")
      *  - "RGB"  (shorthand)
-     *
      * If the input is null or invalid, the provided fallback is returned.
      *
      * @param s        user-provided hex string
      * @param fallbackRgb packed RGB24 fallback color
-     * @return packed RGB24 color (0xRRGGBB)
-     */
+     * @return packed RGB24 color (0xRRGGBB) */
     public static int parseRgb24FromHex(String s, int fallbackRgb) {
         if (s == null) return fallbackRgb;
 
@@ -44,16 +37,12 @@ public final class GlowColorUtil {
         }
     }
 
-    /**
-     * Converts HSV -> packed RGB24 (0xRRGGBB).
-     *
+    /** Converts HSV -> packed RGB24 (0xRRGGBB).
      * Input ranges:
      *  - h (hue): any float, wraps around using fractional part (0..1 repeats)
      *  - s (saturation): expected 0..1
      *  - v (value/brightness): expected 0..1
-     *
-     * This is used for rainbow cycling ("RGB mode") where hue changes over time.
-     */
+     * This is used for rainbow cycling ("RGB mode") where hue changes over time. */
     public static int hsvToRgb24(float h, float s, float v) {
         h = h - (float)Math.floor(h);
         float c = v * s;

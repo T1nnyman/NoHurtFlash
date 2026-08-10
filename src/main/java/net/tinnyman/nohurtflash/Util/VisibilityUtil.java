@@ -12,39 +12,29 @@ import net.minecraft.world.phys.Vec3;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Utility class for determining whether the player camera has a clear, direct line of sight to an entity "right now".
- *
+/** Utility class for determining whether the player camera has a clear, direct line of sight to an entity "right now".
  * This is used to gate visual effects (e.g. hurt glow) so that entities are only highlighted when they are actually visible
  * to the player and not through walls or behind the camera.
- *
- * The result is cached per-entity per-tick to avoid repeated ray-casts during the same frame.
- */
+ * The result is cached per-entity per-tick to avoid repeated ray-casts during the same frame. */
 public final class VisibilityUtil {
     private VisibilityUtil() {}
 
-    /**
-     * Per-tick visibility cache.
+    /** Per-tick visibility cache.
      * Key: entity ID
-     * Value: visibility result for the current level game time
-     */
+     * Value: visibility result for the current level game time */
     private static final Map<Integer, CacheEntry> VISIBILITY_CACHE = new HashMap<>();
 
     /** Maximum distance (in blocks) at which visibility is considered. */
     public static double MAX_RANGE_BLOCKS = 32.0;
 
-    /**
-     * Horizontal view cone in degrees.
-     * Entities outside this cone are ignored before ray-casting.
-     */
+    /** Horizontal view cone in degrees.
+     * Entities outside this cone are ignored before ray-casting. */
     public static double VIEW_CONE_DEGREES = 110.0;
 
     /** Amount to inset the entity bounding box when selecting ray target points, reducing edge-clipping false negatives. */
     public static final double BBOX_INSET = 0.15;
 
-    /**
-     * Cached visibility state for a single entity for one game tick.
-     */
+    /** Cached visibility state for a single entity for one game tick. */
     private static final class CacheEntry {
         long levelGameTime;
         boolean visible;
@@ -55,12 +45,9 @@ public final class VisibilityUtil {
         }
     }
 
-    /**
-     * Returns whether the player camera can currently see the given entity.
-     *
+    /** Returns whether the player camera can currently see the given entity.
      * Results are cached for the current tick to prevent repeated ray-casts
-     * when called multiple times during rendering or event processing.
-     */
+     * when called multiple times during rendering or event processing. */
     public static boolean canPlayerSeeEntityNow(Entity entity) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null) return false; // Not in world
@@ -78,14 +65,11 @@ public final class VisibilityUtil {
         return visible;
     }
 
-    /**
-     * Performs the actual visibility calculation without caching.
-     *
+    /** Performs the actual visibility calculation without caching.
      * Visibility is determined using:
      *  - distance gating
      *  - camera view cone gating
-     *  - multipoint line-of-sight ray-casting
-     */
+     *  - multipoint line-of-sight ray-casting */
     private static boolean computeVisibility(Minecraft mc, Entity entity) {
         Camera camera = mc.gameRenderer.getMainCamera();
         Vec3 cameraPos = camera.getPosition();
@@ -140,11 +124,8 @@ public final class VisibilityUtil {
         return false;
     }
 
-    /**
-     * Performs a block-collider ray-cast between two points.
-     *
-     * Returns true if no solid block obstructs the ray.
-     */
+    /** Performs a block-collider ray-cast between two points.
+     * Returns true if no solid block obstructs the ray. */
     private static boolean isLineOfSightClear(Minecraft mc, Entity rayContextEntity, Vec3 from, Vec3 to) {
         ClipContext ctx = new ClipContext(
                 from,

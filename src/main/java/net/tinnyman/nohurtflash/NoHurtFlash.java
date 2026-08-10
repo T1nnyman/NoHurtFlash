@@ -14,13 +14,13 @@ public class NoHurtFlash {
 
     public NoHurtFlash(FMLJavaModLoadingContext context) {
         // Client Config
-        context.registerConfig(ModConfig.Type.CLIENT, net.tinnyman.nohurtflash.ModConfig.SPEC, MODID + "-client.toml");
+        context.registerConfig(ModConfig.Type.CLIENT, Config.SPEC, MODID + "-client.toml");
 
         // Geckolib dependency check
-        if (!ModList.get().isLoaded("geckolib")) {
-            NoHurtFlash.LOGGER.warn(
-                    "[NoHurtFlash] GeckoLib not detected – GeckoLib entity support will be disabled."
-            );
+        if (ModList.get().isLoaded("geckolib")) {
+            LOGGER.info("[NoHurtFlash] GeckoLib detected – GeckoLib entity support is enabled.");
+        } else {
+            LOGGER.warn("[NoHurtFlash] GeckoLib not detected – GeckoLib entity support will be disabled.");
         }
     }
 }

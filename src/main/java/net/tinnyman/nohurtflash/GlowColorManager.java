@@ -3,23 +3,17 @@ package net.tinnyman.nohurtflash;
 import net.minecraft.client.Minecraft;
 import net.tinnyman.nohurtflash.Util.GlowColorUtil;
 
-/**
- * Provides the glow color that should be used *right now*.
- *
+/** Provides the glow color that should be used *right now*.
  * This supports two modes:
  *  1) Static color from config (hex string)
  *  2) Rainbow mode (HSV hue cycles over time)
  *
- * The result is stored as a packed RGB24 int (0xRRGGBB) for fast consumption by rendering hooks/shader uniform updates.
- */
+ * The result is stored as a packed RGB24 int (0xRRGGBB) for fast consumption by rendering hooks/shader uniform updates. */
 public final class GlowColorManager {
     private GlowColorManager() {}
 
-    /**
-     * Current glow color as packed RGB24 (0xRRGGBB).
-     *
-     * Volatile so rendering code reading this value sees updates immediately without needing additional synchronization.
-     */
+    /** Current glow color as packed RGB24 (0xRRGGBB).
+     * Volatile so rendering code reading this value sees updates immediately without needing additional synchronization. */
     private static volatile int currentGlowRgb24 = 0xFF0000;
 
     private static volatile boolean overrideRgbModeActive = false;
@@ -45,22 +39,19 @@ public final class GlowColorManager {
         }
     }
 
-    /**
-     * Called once per client tick to update the current glow color.
-     *
+    /** Called once per client tick to update the current glow color.
      * This should remain cheap and deterministic. Rendering code should only read the latest computed color
-     * rather than recompute it every frame.
-     */
+     * rather than recompute it every frame. */
     public static void tickClient() {
-        if (!ModConfig.GLOW_ENABLED.get()) return;
+        if (!Config.GLOW_ENABLED.get()) return;
 
-        boolean rgbMode = overrideRgbModeActive ? overrideRgbModeValue : ModConfig.RAINBOW_MODE_ENABLED.get();
+        boolean rgbMode = overrideRgbModeActive ? overrideRgbModeValue : Config.RAINBOW_MODE_ENABLED.get();
 
         if (!rgbMode) {
             if (overrideColorActive) {
                 currentGlowRgb24 = overrideColorRgb24;
             } else {
-                currentGlowRgb24 = GlowColorUtil.parseRgb24FromHex(ModConfig.GLOW_COLOR_HEX_STRING.get(), 0xFF0000);
+                currentGlowRgb24 = GlowColorUtil.parseRgb24FromHex(Config.GLOW_COLOR_HEX_STRING.get(), 0xFF0000);
             }
             return;
         }
@@ -68,15 +59,12 @@ public final class GlowColorManager {
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null) return;
 
-        double cps = ModConfig.RAINBOW_CYCLES_PER_SECOND.get();
+        double cps = Config.RAINBOW_CYCLES_PER_SECOND.get();
         float tSeconds = mc.level.getGameTime() / 20f;
 
         float hue = (float) (tSeconds * cps);
         currentGlowRgb24 = GlowColorUtil.hsvToRgb24(hue, 1.0f, 1.0f);
     }
-
-    /** @return current glow color as packed RGB24 (0xRRGGBB). */
-    public static int getCurrentGlowRgb24() { return currentGlowRgb24; }
 
     /** @return red channel (0-255) from the current glow color. */
     public static int getR() { return (currentGlowRgb24 >> 16) & 0xFF; }

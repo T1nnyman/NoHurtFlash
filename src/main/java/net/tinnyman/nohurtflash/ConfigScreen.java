@@ -11,18 +11,18 @@ import net.tinnyman.nohurtflash.Util.GlowColorUtil;
 import java.util.function.DoubleConsumer;
 import java.util.function.IntConsumer;
 
-/**
- * Client-side GUI for configuring the hurt-glow color.
+/** Client-side GUI for configuring the hurt-glow color.
  *
  * This screen provides:
  *  - Static RGB color selection with live preview
  *  - RGB (rainbow) mode toggle
  *  - RGB cycle speed control
+ *  - Enable/disable custom hurt glow
+ *  - Enable/disable vanilla Minecraft hurt effect
  *
  *  All changes are previewed instantly and can be saved directly to the
- *  client config without requiring a game restart.
- */
-public class GlowColorPickerScreen extends Screen {
+ *  client config without requiring a game restart. */
+public class ConfigScreen extends Screen {
 
     /** Parent screen to return to when closing this menu. */
     private final Screen parent;
@@ -40,6 +40,14 @@ public class GlowColorPickerScreen extends Screen {
     /** Rainbow cycle speed (full hue cycles per second). */
     private double rgbCps;
 
+    /* -------- Effect state -------- */
+    /** Whether the NoHurtFlash custom glow is enabled. */
+    private boolean glowEnabled;
+
+    /** Whether Minecraft's original red hurt overlay is enabled.
+     This is intentionally independent of glowEnabled so users can choose either effect, both, or neither. */
+    private boolean oldHurtEffectEnabled;
+
     /* -------- UI widgets -------- */
 
     private IntSlider rSlider;
@@ -48,24 +56,25 @@ public class GlowColorPickerScreen extends Screen {
 
     private DoubleSlider cpsSlider;
 
-    /**
-     * Creates the glow color picker screen.
-     *
+    /** Creates the glow color picker screen.
      * Initial values are pulled from the current client config so the
-     * UI reflects the active settings when opened.
-     */
-    public GlowColorPickerScreen(Screen parent) {
-        super(Component.literal("NoHurtFlash Glow Settings"));
+     * UI reflects the active settings when opened. */
+    public ConfigScreen(Screen parent) {
+        super(Component.literal("NoHurtFlash Settings"));
         this.parent = parent;
 
+        // Initialize effect enabled state from config
+        this.glowEnabled = Config.GLOW_ENABLED.get();
+        this.oldHurtEffectEnabled = Config.OLD_HURT_EFFECT_ENABLED.get();
+
         // Initialize static color from cached config values
-        this.r = ModConfig.glowRed();
-        this.g = ModConfig.glowGreen();
-        this.b = ModConfig.glowBlue();
+        this.r = Config.glowRed();
+        this.g = Config.glowGreen();
+        this.b = Config.glowBlue();
 
         // Initialize RGB mode state from config
-        this.rgbMode = ModConfig.RAINBOW_MODE_ENABLED.get();
-        this.rgbCps = ModConfig.RAINBOW_CYCLES_PER_SECOND.get();
+        this.rgbMode = Config.RAINBOW_MODE_ENABLED.get();
+        this.rgbCps = Config.RAINBOW_CYCLES_PER_SECOND.get();
     }
 
 
@@ -73,66 +82,119 @@ public class GlowColorPickerScreen extends Screen {
     protected void init() {
         int cx = this.width / 2;
         int y = this.height / 4;
+        int controlWidth = 240;
+        int controlHeight = 20;
+        int buttonWidth = 116;
+        int buttonGap = 8;
+        int verticalGap = 6;
 
-        /* -------- RGB mode toggle -------- */
+        /* ================================================================ */
+        /* Glow Effect + Old Hurt Effect                                    */
+        /* ================================================================ */
+
+        Button glowToggleBtn = addRenderableWidget(Button.builder(glowToggleLabel(), btn -> {
+            glowEnabled = !glowEnabled;
+            btn.setMessage(glowToggleLabel());
+            updateEnabledStates();
+            applyLivePreview();
+        }).bounds(cx - buttonWidth - (buttonGap / 2), y, buttonWidth, controlHeight).build());
+
+        Button oldHurtToggleBtn = addRenderableWidget(Button.builder(oldHurtEffectLabel(), btn -> {
+            oldHurtEffectEnabled = !oldHurtEffectEnabled;
+            btn.setMessage(oldHurtEffectLabel());
+            applyLivePreview();
+        }).bounds(cx + (buttonGap / 2), y, buttonWidth, controlHeight).build());
+
+        // Move to the next row.
+        y += controlHeight + verticalGap;
+
+
+        /* ================================================================ */
+        /* RGB Mode                                                         */
+        /* ================================================================ */
 
         Button rgbToggleBtn = addRenderableWidget(Button.builder(rgbToggleLabel(), btn -> {
             rgbMode = !rgbMode;
             btn.setMessage(rgbToggleLabel());
             updateEnabledStates();
             applyLivePreview();
-        }).bounds(cx - 120, y, 240, 20).build());
-        y += 26;
+        }).bounds(cx - controlWidth / 2, y, controlWidth, controlHeight).build());
 
-        /* -------- RGB speed slider -------- */
+        y += controlHeight + verticalGap;
 
-        cpsSlider = addRenderableWidget(new DoubleSlider(cx - 120, y, 240, 20,
-                "RGB Speed (cycles/sec)", rgbCps, 0.1, 50.0, v -> {
+        /* ================================================================ */
+        /* RGB Speed                                                        */
+        /* ================================================================ */
+
+        cpsSlider = addRenderableWidget(new DoubleSlider(cx - controlWidth / 2, y, controlWidth, controlHeight, "RGB Speed (cycles/sec)",
+                rgbCps, 0.1, 2.0, v -> {
             rgbCps = v;
             applyLivePreview();
         }));
-        y += 28;
 
-        /* -------- Static RGB sliders -------- */
+        y += controlHeight + verticalGap;
 
-        rSlider = addRenderableWidget(new IntSlider(cx - 120, y, 240, 20, "R", r, v -> {
+        /* ================================================================ */
+        /* Red                                                               */
+        /* ================================================================ */
+
+        rSlider = addRenderableWidget(new IntSlider(cx - controlWidth / 2, y, controlWidth, controlHeight, "R", r, v -> {
             r = v;
             applyLivePreview();
         }));
-        y += 24;
 
-        gSlider = addRenderableWidget(new IntSlider(cx - 120, y, 240, 20, "G", g, v -> {
+        y += controlHeight + verticalGap;
+
+
+        /* ================================================================ */
+        /* Green                                                             */
+        /* ================================================================ */
+
+        gSlider = addRenderableWidget(new IntSlider(cx - controlWidth / 2, y, controlWidth, controlHeight, "G", g, v -> {
             g = v;
             applyLivePreview();
         }));
-        y += 24;
 
-        bSlider = addRenderableWidget(new IntSlider(cx - 120, y, 240, 20, "B", b, v -> {
+        y += controlHeight + verticalGap;
+
+
+        /* ================================================================ */
+        /* Blue                                                              */
+        /* ================================================================ */
+
+        bSlider = addRenderableWidget(new IntSlider(cx - controlWidth / 2, y, controlWidth, controlHeight, "B", b, v -> {
             b = v;
             applyLivePreview();
         }));
-        y += 34;
 
-        /* -------- Save / Cancel buttons -------- */
+        y += controlHeight + verticalGap;
+
+        /* ================================================================ */
+        /* Save / Cancel                                                     */
+        /* ================================================================ */
 
         addRenderableWidget(Button.builder(Component.literal("Save"), btn -> {
-            // Persist settings to config (both in-memory and on disk)
             String hex = String.format("#%02X%02X%02X", r, g, b);
-            ModConfig.applyPickerSettings(rgbMode, rgbCps, hex);
 
-            // Clear runtime overrides so the config drives behavior
+            // Persist all settings to the config.
+            Config.applyConfigSettings(glowEnabled, oldHurtEffectEnabled, rgbMode, rgbCps, hex);
+
+            // Clear runtime overrides so the saved config
+            // becomes the source of truth.
             GlowColorManager.setOverrideRgbMode(null);
             GlowColorManager.setOverrideColorRgb24(null);
 
             this.minecraft.setScreen(parent);
-        }).bounds(cx - 120, y, 116, 20).build());
+        }).bounds(cx - buttonWidth - (buttonGap / 2), y, buttonWidth, controlHeight).build());
+
 
         addRenderableWidget(Button.builder(Component.literal("Cancel"), btn -> {
-            // Revert any live preview overrides
+            // Remove live preview overrides.
             GlowColorManager.setOverrideRgbMode(null);
             GlowColorManager.setOverrideColorRgb24(null);
+
             this.minecraft.setScreen(parent);
-        }).bounds(cx + 4, y, 116, 20).build());
+        }).bounds(cx + (buttonGap / 2), y, buttonWidth, controlHeight).build());
 
         updateEnabledStates();
         applyLivePreview();
@@ -143,13 +205,16 @@ public class GlowColorPickerScreen extends Screen {
         return Component.literal("RGB Mode: " + (rgbMode ? "ON" : "OFF"));
     }
 
-    /**
-     * Enables or disables UI controls based on the current RGB mode state.
-     *
+    /** @return Label for the custom glow toggle. */
+    private Component glowToggleLabel() { return Component.literal( "Glow Effect: " + (glowEnabled ? "ON" : "OFF") ); }
+
+    /** @return Label for the vanilla hurt effect toggle. */
+    private Component oldHurtEffectLabel() { return Component.literal( "Old Hurt Effect: " + (oldHurtEffectEnabled ? "ON" : "OFF") ); }
+
+    /** Enables or disables UI controls based on the current RGB mode state.
      * When RGB mode is enabled:
      *  - Static RGB sliders are disabled
-     *  - RGB speed slider is enabled
-     */
+     *  - RGB speed slider is enabled */
     private void updateEnabledStates() {
         // If RGB mode is ON, static sliders still can be adjusted for later,
         // but you can choose to disable them if you prefer.
@@ -162,12 +227,8 @@ public class GlowColorPickerScreen extends Screen {
         cpsSlider.active = rgbMode;
     }
 
-    /**
-     * Applies a live preview of the current UI state.
-     *
-     * This updates GlowColorManager overrides immediately without
-     * saving anything to disk.
-     */
+    /** Applies a live preview of the current UI state.
+     * This updates GlowColorManager overrides immediately without saving anything to disk. */
     private void applyLivePreview() {
         GlowColorManager.setOverrideRgbMode(rgbMode);
 
@@ -179,7 +240,7 @@ public class GlowColorPickerScreen extends Screen {
 
             // Update RGB speed in-memory so the rainbow animation
             // reflects the slider immediately
-            ModConfig.RAINBOW_CYCLES_PER_SECOND.set(rgbCps);
+            Config.RAINBOW_CYCLES_PER_SECOND.set(rgbCps);
         }
     }
 
@@ -219,9 +280,7 @@ public class GlowColorPickerScreen extends Screen {
     /* --------------------------------------------------------------------- */
 
 
-    /**
-     * Integer slider for 0–255 channel values.
-     */
+    /** Integer slider for 0–255 channel values. */
     private static final class IntSlider extends AbstractSliderButton {
         private final String label;
         private final IntConsumer onChange;
@@ -244,11 +303,8 @@ public class GlowColorPickerScreen extends Screen {
         }
     }
 
-    /**
-     * Double slider with a configurable range.
-     *
-     * Used for RGB cycle speed (cycles per second).
-     */
+    /** Double slider with a configurable range.
+     * Used for RGB cycle speed (cycles per second). */
     private static final class DoubleSlider extends AbstractSliderButton {
         private final String label;
         private final double min;

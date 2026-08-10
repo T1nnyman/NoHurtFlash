@@ -8,9 +8,9 @@
     "EntityAccessor"
   ],
   "client": [
-    "GeoEntityRendererMixin",
     "LivingEntityRendererMixin",
-    "LevelRendererTeamColorMixin"
+    "LevelRendererTeamColorMixin",
+    "GeoEntityRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 0
