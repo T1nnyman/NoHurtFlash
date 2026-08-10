@@ -1,0 +1,19 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "net.tinnyman.nohurtflash.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "EntityAccessor"
+  ],
+  "client": [
+    "LivingEntityRendererMixin",
+    "LevelRendererTeamColorMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 0
+  },
+  "overwrites": {
+    "requireAnnotations": true
+  }
+}

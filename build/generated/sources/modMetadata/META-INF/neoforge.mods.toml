@@ -1,0 +1,32 @@
+modLoader = "javafml"
+loaderVersion = "[4,)"
+license = "MIT"
+
+[[mods]]
+modId = "nohurtflash_neoforge"
+version = "1.1"
+displayName = "NoHurtFlash"
+authors = "Tinnyman"
+description = '''Replaces Minecraft's hurt flash with a configurable glowing outline.'''
+side = "CLIENT"
+
+[[mixins]]
+config = "nohurtflash_neoforge.mixins.json"
+
+[[mixins]]
+config = "nohurtflash_neoforge_geckolib.mixins.json"
+requiredMods = ["geckolib"]
+
+[[dependencies."nohurtflash_neoforge"]]
+modId = "minecraft"
+type = "required"
+versionRange = "[1.21.1,1.22)"
+ordering = "NONE"
+side = "CLIENT"
+
+[[dependencies."nohurtflash_neoforge"]]
+modId = "geckolib"
+type = "optional"
+versionRange = "[4.9,)"
+ordering = "AFTER"
+side = "CLIENT"
