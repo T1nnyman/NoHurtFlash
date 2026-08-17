@@ -1,0 +1,15 @@
+{
+  "required": false,
+  "minVersion": "0.8",
+  "package": "net.tinnyman.nohurtflash.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "CobblemonPosableEntityModelMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 0
+  },
+  "overwrites": {
+    "requireAnnotations": true
+  }
+}

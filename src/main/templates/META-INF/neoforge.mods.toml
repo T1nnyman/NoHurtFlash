@@ -17,6 +17,10 @@ config = "${mod_id}.mixins.json"
 config = "${mod_id}_geckolib.mixins.json"
 requiredMods = ["geckolib"]
 
+[[mixins]]
+config = "${mod_id}_cobblemon.mixins.json"
+requiredMods = ["cobblemon"]
+
 [[dependencies."${mod_id}"]]
 modId = "minecraft"
 type = "required"
@@ -28,5 +32,12 @@ side = "CLIENT"
 modId = "geckolib"
 type = "optional"
 versionRange = "[4.9,)"
+ordering = "AFTER"
+side = "CLIENT"
+
+[[dependencies."${mod_id}"]]
+modId = "cobblemon"
+type = "optional"
+versionRange = "[1.7.3,1.7.4)"
 ordering = "AFTER"
 side = "CLIENT"

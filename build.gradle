@@ -18,6 +18,15 @@ repositories {
             includeGroup("software.bernie.geckolib")
         }
     }
+
+    // CurseForge Maven
+    maven {
+        name = "CurseMaven"
+        url = "https://www.cursemaven.com"
+        content {
+            includeGroup("curse.maven")
+        }
+    }
 }
 
 base {
@@ -80,7 +89,11 @@ sourceSets.main.resources {
 }
 
 dependencies {
-    implementation "software.bernie.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}"
+    // GeckoLib 4.7.2 - NeoForge 1.21.1
+    compileOnly "software.bernie.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}"
+
+    // Cobblemon 1.7.3 - NeoForge 1.21.1
+    compileOnly "curse.maven:cobblemon-687131:7553231"
 }
 
 // Generate mod metadata from the template.

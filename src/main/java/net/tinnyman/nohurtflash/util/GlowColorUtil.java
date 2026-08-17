@@ -66,6 +66,36 @@ public final class GlowColorUtil {
         return (r << 16) | (g << 8) | b;
     }
 
+    public static float[] rgbToHsv(int r, int g, int b) {
+        float rf = r / 255.0f;
+        float gf = g / 255.0f;
+        float bf = b / 255.0f;
+
+        float max = Math.max(rf, Math.max(gf, bf));
+        float min = Math.min(rf, Math.min(gf, bf));
+        float delta = max - min;
+        float hue = 0.0f;
+
+        if (delta != 0.0f) {
+            if (max == rf) {
+                hue = ((gf - bf) / delta) % 6.0f;
+            } else if (max == gf) {
+                hue = ((bf - rf) / delta) + 2.0f;
+            } else {
+                hue = ((rf - gf) / delta) + 4.0f;
+            }
+
+            hue /= 6.0f;
+
+            if (hue < 0.0f) hue += 1.0f;
+        }
+
+        float saturation = max == 0.0f ? 0.0f : delta / max;
+        float value = max;
+
+        return new float[]{hue, saturation, value};
+    }
+
     /** Clamps an integer channel to the valid 8-bit color range (0..255). */
     private static int clamp255(int v) {
         return Math.max(0, Math.min(255, v));
